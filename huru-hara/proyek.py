@@ -1,0 +1,31 @@
+def menu_utama():
+    print("\n===============================")
+    print(" PROGRAM PENGELOLAAN BARANG")
+    print("===============================")
+    print("1. Pengolahan Data Barang")
+    print("2. Lihat Data Barang")
+    print("3. Kasir")
+    print("4. History Transaksi")
+    print("0. Keluar")
+
+def menu_pengolahan():
+    print("\n=== PENGOLAHAN DATA BARANG ===")
+    print("1. Tambah Barang")
+    print("2. Hapus Barang")
+    print("3. Edit Barang")
+    print("0. Kembali")
+
+def rupiah(angka):
+    return "Rp{:,.0f}".format(angka).replace(",", ".")
+
+def baca_barang():
+    data = []
+    try: #Dibantuin copilot
+        file = open("barang.txt", "r")
+        for line in file:
+            data.append(line.strip().split(","))
+        file.close()
+    except:
+        pass
+    return data
+
