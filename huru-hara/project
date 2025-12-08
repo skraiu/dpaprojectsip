@@ -1,0 +1,171 @@
+def rupiah(angka):
+    return "Rp{:,.0f}".format(angka).replace(",", ".")
+
+
+def menu_utama():
+    print("\n===============================")
+    print(" PROGRAM PENGELOLAAN BARANG")
+    print("===============================")
+    print("1. Pengolahan Data Barang")
+    print("2. Lihat Data Barang")
+    print("3. Kasir")
+    print("4. History Transaksi")
+    print("0. Keluar")
+
+
+def menu_pengolahan():
+    print("\n=== PENGOLAHAN DATA BARANG ===")
+    print("1. Tambah Barang")
+    print("2. Hapus Barang")
+    print("3. Edit Barang")
+    print("0. Kembali")
+
+
+def baca_barang():
+    data = []
+    try:
+        file = open("barang.txt", "r")
+        for line in file:
+            data.append(line.strip().split(","))
+        file.close()
+    except:
+        pass
+    return data
+
+
+def simpan_barang(data):
+    file = open("barang.txt", "w")
+    for d in data:
+        file.write(",".join(d) + "\n")
+    file.close()
+
+
+def tambah_barang():
+    kode = input("Kode Barang : ")
+    nama = input("Nama Barang : ")
+    qty = input("Quantity    : ")
+    harga = input("Harga       : ")
+    file = open("barang.txt", "a")
+    file.write(f"{kode},{nama},{qty},{harga}\n")
+    file.close()
+    print("Barang berhasil ditambahkan.")
+
+
+def hapus_barang():
+    kode = input("Kode barang yang ingin dihapus : ")
+    data = baca_barang()
+    data_baru = []
+    for d in data:
+        if d[0] != kode:
+            data_baru.append(d)
+    simpan_barang(data_baru)
+    print("Barang berhasil dihapus.")
+
+
+def edit_barang():
+    kode = input("Kode barang yang ingin diedit : ")
+    data = baca_barang()
+    for d in data:
+        if d[0] == kode:
+            print("1. Edit Nama")
+            print("2. Edit Quantity")
+            print("3. Edit Harga")
+            pilih = input("Pilih : ")
+            if pilih == "1":
+                d[1] = input("Nama baru : ")
+            elif pilih == "2":
+                d[2] = input("Qty baru : ")
+            elif pilih == "3":
+                d[3] = input("Harga baru : ")
+            simpan_barang(data)
+            print("Data barang berhasil diedit.")
+            return
+    print("Barang tidak ditemukan.")
+
+
+def lihat_barang():
+    data = baca_barang()
+    if not data:
+        print("Data barang masih kosong.")
+        return
+    print("\nKode | Nama Barang | Qty | Harga")
+    print("-------------------------------------")
+    for d in data:
+        print(f"{d[0]} | {d[1]} | {d[2]} | {rupiah(int(d[3]))}")
+
+
+def kasir():
+    data = baca_barang()
+    if not data:
+        print("Data barang kosong.")
+        return
+    total = 0
+    transaksi = []
+    while True:
+        kode = input("Masukkan kode barang : ")
+        qty_beli = int(input("Jumlah beli : "))
+        ditemukan = False
+        for d in data:
+            if d[0] == kode:
+                ditemukan = True
+                if qty_beli <= int(d[2]):
+                    subtotal = qty_beli * int(d[3])
+                    total += subtotal
+                    d[2] = str(int(d[2]) - qty_beli)
+                    transaksi.append(f"{kode} x{qty_beli}")
+                else:
+                    print("Stok tidak mencukupi.")
+                break
+        if not ditemukan:
+            print("Kode barang tidak ditemukan.")
+        lagi = input("Tambah barang lagi? (y/n): ")
+        if lagi.lower() != "y":
+            break
+    bayar = int(input("Uang bayar : "))
+    print("Total      :", rupiah(total))
+    print("Kembalian  :", rupiah(bayar - total))
+    simpan_barang(data)
+    file = open("history.txt", "a")
+    file.write(", ".join(transaksi) + " → " + rupiah(total) + "\n")
+    file.close()
+    print("Transaksi berhasil disimpan.")
+
+
+def history():
+    print("\n=== HISTORY TRANSAKSI ===")
+    try:
+        file = open("history.txt", "r")
+        isi = file.read()
+        file.close()
+        if isi.strip() == "":
+            print("Belum ada transaksi.")
+        else:
+            print(isi)
+    except:
+        print("Belum ada transaksi.")
+
+
+while True:
+    menu_utama()
+    pilih = input("Pilih menu : ")
+    if pilih == "1":
+        while True:
+            menu_pengolahan()
+            sub = input("Pilih : ")
+            if sub == "1":
+                tambah_barang()
+            elif sub == "2":
+                hapus_barang()
+            elif sub == "3":
+                edit_barang()
+            elif sub == "0":
+                break
+    elif pilih == "2":
+        lihat_barang()
+    elif pilih == "3":
+        kasir()
+    elif pilih == "4":
+        history()
+    elif pilih == "0":
+        print("Program selesai.")
+        break
